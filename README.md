@@ -76,8 +76,7 @@ Fill in `APPS_SCRIPT_URL` with the Web App URL from step 4.
 
 ### 6. Add images
 
-- `/public/logo.png` — your cafe logo
-- `/public/hero.png` — the hero banner graphic (location/hours/payment)
+- `/public/hero.png` — the hero banner graphic (brand illustration; no logo overlay needed)
 - `/public/paynow-qr.png` (or matching extension) — your PayNow QR screenshot
 - `/public/menu/<filename>` — menu item photos, named to match the `Image Filename` column in the Cafe Menu sheet
 
