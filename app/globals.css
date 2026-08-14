@@ -13,11 +13,12 @@
   --font-heading: var(--font-fraunces);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* This app always renders in its light, cream/brown brand palette —
+   intentionally not following the device's dark mode setting, since the
+   UI colors are tuned for that one theme rather than built with a
+   second dark variant for every component. */
+:root {
+  color-scheme: light;
 }
 
 body {
