@@ -16,7 +16,7 @@ export default function Hero({ settings, isOpen }: { settings: Settings; isOpen:
         <img
           src="/logo.png"
           alt={settings.cafeName}
-          className="mx-auto -mt-12 mb-3 h-24 w-24 rounded-full border-4 border-stone-50 bg-white object-cover shadow-sm"
+          className="mx-auto -mt-20 mb-2 h-24 w-24 rounded-full border-4 border-stone-50 bg-white object-cover shadow-sm"
         />
 
         <h1 className="font-heading text-3xl font-bold text-stone-900">{settings.cafeName}</h1>
