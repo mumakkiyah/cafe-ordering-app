@@ -76,68 +76,72 @@ export default function Hero({ settings, isOpen }: { settings: Settings; isOpen:
           </div>
         )}
 
-        {settings.instagramHandle && (
-          <a
-            href={`https://instagram.com/${settings.instagramHandle}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 flex items-center justify-center gap-1.5 text-sm font-medium text-stone-600 hover:text-stone-900"
-          >
-            <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
-              <defs>
-                <radialGradient id="ig-gradient" cx="30%" cy="107%" r="150%">
-                  <stop offset="0%" stopColor="#fdf497" />
-                  <stop offset="5%" stopColor="#fdf497" />
-                  <stop offset="45%" stopColor="#fd5949" />
-                  <stop offset="60%" stopColor="#d6249f" />
-                  <stop offset="90%" stopColor="#285AEB" />
-                </radialGradient>
-              </defs>
-              <rect x="1.5" y="1.5" width="21" height="21" rx="6" fill="url(#ig-gradient)" />
-              <rect
-                x="6.5"
-                y="6.5"
-                width="11"
-                height="11"
-                rx="3.5"
-                fill="none"
-                stroke="#fff"
-                strokeWidth="1.4"
-              />
-              <circle cx="12" cy="12" r="3.1" fill="none" stroke="#fff" strokeWidth="1.4" />
-              <circle cx="15.6" cy="8.4" r="0.9" fill="#fff" />
-            </svg>
-            @{settings.instagramHandle}
-          </a>
-        )}
+        {(settings.instagramHandle || settings.googleReviewLink) && (
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+            {settings.instagramHandle && (
+              <a
+                href={`https://instagram.com/${settings.instagramHandle}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-sm font-medium text-stone-600 hover:text-stone-900"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
+                  <defs>
+                    <radialGradient id="ig-gradient" cx="30%" cy="107%" r="150%">
+                      <stop offset="0%" stopColor="#fdf497" />
+                      <stop offset="5%" stopColor="#fdf497" />
+                      <stop offset="45%" stopColor="#fd5949" />
+                      <stop offset="60%" stopColor="#d6249f" />
+                      <stop offset="90%" stopColor="#285AEB" />
+                    </radialGradient>
+                  </defs>
+                  <rect x="1.5" y="1.5" width="21" height="21" rx="6" fill="url(#ig-gradient)" />
+                  <rect
+                    x="6.5"
+                    y="6.5"
+                    width="11"
+                    height="11"
+                    rx="3.5"
+                    fill="none"
+                    stroke="#fff"
+                    strokeWidth="1.4"
+                  />
+                  <circle cx="12" cy="12" r="3.1" fill="none" stroke="#fff" strokeWidth="1.4" />
+                  <circle cx="15.6" cy="8.4" r="0.9" fill="#fff" />
+                </svg>
+                @{settings.instagramHandle}
+              </a>
+            )}
 
-        {settings.googleReviewLink && (
-          <a
-            href={settings.googleReviewLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 flex items-center justify-center gap-1.5 text-sm font-medium text-stone-600 hover:text-stone-900"
-          >
-            <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
-              <path
-                fill="#4285F4"
-                d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.82Z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.26v3.11A12 12 0 0 0 12 24Z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.61H1.26A12 12 0 0 0 0 12c0 1.94.46 3.77 1.26 5.39l4.01-3.11Z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 4.76c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.23 0 12 0 7.31 0 3.26 2.69 1.26 6.61l4.01 3.11C6.22 6.87 8.87 4.76 12 4.76Z"
-              />
-            </svg>
-            Leave us a review
-          </a>
+            {settings.googleReviewLink && (
+              <a
+                href={settings.googleReviewLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-sm font-medium text-stone-600 hover:text-stone-900"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
+                  <path
+                    fill="#4285F4"
+                    d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.82Z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.26v3.11A12 12 0 0 0 12 24Z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.61H1.26A12 12 0 0 0 0 12c0 1.94.46 3.77 1.26 5.39l4.01-3.11Z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 4.76c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.23 0 12 0 7.31 0 3.26 2.69 1.26 6.61l4.01 3.11C6.22 6.87 8.87 4.76 12 4.76Z"
+                  />
+                </svg>
+                Leave us a review
+              </a>
+            )}
+          </div>
         )}
       </div>
     </header>
