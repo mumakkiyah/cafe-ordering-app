@@ -104,6 +104,16 @@ function formatTimestamp_(date) {
   return Utilities.formatDate(date, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
 }
 
+// Prevents spreadsheet formula injection: Sheets treats a cell starting
+// with =, +, -, or @ as a formula. Customer-supplied text (name, phone,
+// item names from a direct API call) must never be allowed to trigger
+// that — prefixing with an apostrophe forces Sheets to treat it as plain
+// text, matching Sheets' own "force text" convention.
+function sanitizeForSheet_(value) {
+  var text = String(value);
+  return /^[=+\-@]/.test(text) ? "'" + text : text;
+}
+
 function submitOrder_(payload) {
   if (!payload.name || !payload.phone || !payload.items || !payload.items.length || !payload.amount) {
     throw new Error('Missing required order fields');
@@ -115,7 +125,14 @@ function submitOrder_(payload) {
   var timestampText = formatTimestamp_(now);
   var itemsSummary = buildItemsSummary_(payload.items);
 
-  sheet.appendRow([orderNumber, timestampText, payload.name, payload.phone, itemsSummary, payload.amount]);
+  sheet.appendRow([
+    orderNumber,
+    timestampText,
+    sanitizeForSheet_(payload.name),
+    sanitizeForSheet_(payload.phone),
+    sanitizeForSheet_(itemsSummary),
+    payload.amount
+  ]);
 
   // The order is already saved at this point — a notification failure
   // must never cause the app to report the order itself as failed to the
@@ -129,6 +146,16 @@ function submitOrder_(payload) {
   return { orderNumber: orderNumber, timestamp: timestampText };
 }
 
+// Telegram auto-links anything that looks like a URL or bare domain (e.g.
+// "evil.com" with no scheme), even in plain messages with no parse_mode
+// set. Customer-supplied text (name, phone, item names from a direct API
+// call) must never render as a clickable link in a notification you might
+// tap without thinking — breaking every "." defuses both full URLs and
+// bare domains, since neither can be recognized without an intact TLD.
+function defangForTelegram_(value) {
+  return String(value).replace(/\./g, '[.]').replace(/:\/\//g, ':/ /');
+}
+
 function sendOwnerNotification_(orderNumber, timestampText, payload, itemsSummary) {
   var botToken = getProp_('TELEGRAM_BOT_TOKEN');
   var chatId = getProp_('TELEGRAM_CHAT_ID');
@@ -136,9 +163,9 @@ function sendOwnerNotification_(orderNumber, timestampText, payload, itemsSummar
     'New order #' + orderNumber,
     '',
     'Time: ' + timestampText,
-    'Name: ' + payload.name,
-    'Phone: ' + payload.phone,
-    'Items: ' + itemsSummary,
+    'Name: ' + defangForTelegram_(payload.name),
+    'Phone: ' + defangForTelegram_(payload.phone),
+    'Items: ' + defangForTelegram_(itemsSummary),
     'Amount: ' + payload.amount
   ].join('\n');
 
