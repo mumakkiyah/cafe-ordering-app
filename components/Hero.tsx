@@ -3,13 +3,13 @@ import { formatHours } from "@/lib/openStatus";
 
 export default function Hero({ settings, isOpen }: { settings: Settings; isOpen: boolean }) {
   return (
-    <header className="border-b border-stone-200 bg-stone-50 px-4 py-8 text-center">
+    <header className="border-b border-stone-200 bg-stone-50 px-4 py-5 text-center">
       <div className="mx-auto max-w-2xl">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/hero.png"
           alt={settings.cafeName}
-          className="mb-6 w-full rounded-2xl object-cover"
+          className="mb-4 w-full rounded-2xl object-cover"
         />
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -20,14 +20,14 @@ export default function Hero({ settings, isOpen }: { settings: Settings; isOpen:
         />
 
         <h1 className="font-heading text-3xl font-bold text-stone-900">{settings.cafeName}</h1>
-        <p className="mx-auto mt-3 max-w-lg text-stone-600">{settings.description}</p>
+        <p className="mx-auto mt-2 max-w-lg text-stone-600">{settings.description}</p>
 
         {settings.location && (
           <a
             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.location)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mx-auto mt-4 inline-flex max-w-md items-start gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-left hover:bg-stone-50"
+            className="mx-auto mt-3 inline-flex max-w-md items-start gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-left hover:bg-stone-50"
           >
             <svg
               viewBox="0 0 24 24"
@@ -48,7 +48,7 @@ export default function Hero({ settings, isOpen }: { settings: Settings; isOpen:
           </a>
         )}
 
-        <div className="mt-4 flex justify-center">
+        <div className="mt-3 flex justify-center">
           {isOpen ? (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
               <span className="h-2 w-2 rounded-full bg-green-600" />
@@ -68,7 +68,7 @@ export default function Hero({ settings, isOpen }: { settings: Settings; isOpen:
         </div>
 
         {settings.paymentNote && (
-          <div className="mt-3 flex items-center justify-center gap-1.5 text-sm text-stone-500">
+          <div className="mt-2 flex items-center justify-center gap-1.5 text-sm text-stone-500">
             <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="currentColor" aria-hidden>
               <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4H4V6h16v2Zm0 2v8H4v-8h16Zm-3 4h-2v2h2v-2Z" />
             </svg>
@@ -81,7 +81,7 @@ export default function Hero({ settings, isOpen }: { settings: Settings; isOpen:
             href={`https://instagram.com/${settings.instagramHandle}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-3 flex items-center justify-center gap-1.5 text-sm font-medium text-stone-600 hover:text-stone-900"
+            className="mt-2 flex items-center justify-center gap-1.5 text-sm font-medium text-stone-600 hover:text-stone-900"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
               <defs>
