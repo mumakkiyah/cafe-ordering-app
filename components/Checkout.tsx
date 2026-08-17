@@ -9,12 +9,16 @@ type Customer = { name: string; phone: string };
 export default function Checkout({
   cart,
   onBackToMenu,
+  onUpdateQty,
+  onRemoveLine,
   onConfirmPaid,
   submitting,
   submitError,
 }: {
   cart: CartLine[];
   onBackToMenu: () => void;
+  onUpdateQty: (lineId: string, qty: number) => void;
+  onRemoveLine: (lineId: string) => void;
   onConfirmPaid: (customer: Customer) => void;
   submitting: boolean;
   submitError: string | null;
@@ -51,17 +55,53 @@ export default function Checkout({
 
       <div className="divide-y divide-stone-200 rounded-xl border border-stone-200">
         {cart.map((line) => (
-          <div key={line.id} className="flex items-center justify-between px-4 py-3">
-            <div>
+          <div key={line.id} className="flex items-center justify-between gap-3 px-4 py-3">
+            <div className="min-w-0">
               <div className="font-medium text-stone-900">
-                {line.qty}x {line.name}
+                {line.name}
                 {line.variant ? ` (${line.variant})` : ""}
               </div>
               {line.addOns.length > 0 && (
                 <div className="text-sm text-stone-500">+ {line.addOns.join(", ")}</div>
               )}
+              <div className="mt-1 text-sm text-stone-500">{formatMoney(line.unitPrice)} each</div>
             </div>
-            <div className="font-medium text-stone-700">{formatMoney(line.lineTotal)}</div>
+            <div className="flex shrink-0 items-center gap-3">
+              <div className="flex items-center gap-2 rounded-full border border-stone-300 px-2 py-1">
+                <button
+                  type="button"
+                  onClick={() =>
+                    line.qty <= 1 ? onRemoveLine(line.id) : onUpdateQty(line.id, line.qty - 1)
+                  }
+                  className="text-lg font-medium text-stone-600"
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </button>
+                <span className="w-4 text-center text-sm">{line.qty}</span>
+                <button
+                  type="button"
+                  onClick={() => onUpdateQty(line.id, line.qty + 1)}
+                  className="text-lg font-medium text-stone-600"
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
+              <div className="w-14 text-right font-medium text-stone-700">
+                {formatMoney(line.lineTotal)}
+              </div>
+              <button
+                type="button"
+                onClick={() => onRemoveLine(line.id)}
+                aria-label={`Remove ${line.name}`}
+                className="text-stone-400 hover:text-red-600"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden>
+                  <path d="M9 3a1 1 0 0 0-1 1v1H4v2h16V5h-4V4a1 1 0 0 0-1-1H9Zm-3 6 1 12h10l1-12H6Z" />
+                </svg>
+              </button>
+            </div>
           </div>
         ))}
         <div className="flex items-center justify-between px-4 py-3 font-bold text-stone-900">

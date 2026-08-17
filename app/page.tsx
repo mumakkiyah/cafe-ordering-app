@@ -7,6 +7,12 @@ import OrderingApp from "@/components/OrderingApp";
 // no redeploy needed). Static prerendering would freeze data at build time.
 export const dynamic = "force-dynamic";
 
+// Order submission (a Server Action on this page) occasionally needs to
+// wait on a slow Apps Script response — give it more room than the
+// platform default so it isn't killed before our own 20s client timeout
+// in lib/appsScript.ts has a chance to fire with a clear error.
+export const maxDuration = 30;
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
   return { title: settings.cafeName };

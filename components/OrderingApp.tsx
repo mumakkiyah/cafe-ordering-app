@@ -51,6 +51,18 @@ export default function OrderingApp({ settings, menu }: { settings: Settings; me
     setView("detail");
   };
 
+  const updateCartQty = (lineId: string, qty: number) => {
+    setCart((c) => c.map((line) => (line.id === lineId ? { ...line, qty, lineTotal: line.unitPrice * qty } : line)));
+  };
+
+  const removeCartLine = (lineId: string) => {
+    setCart((c) => {
+      const next = c.filter((line) => line.id !== lineId);
+      if (next.length === 0) setView("menu");
+      return next;
+    });
+  };
+
   const handleConfirmPaid = async (customerDetails: Customer) => {
     setCustomer(customerDetails);
     setSubmitting(true);
@@ -113,6 +125,8 @@ export default function OrderingApp({ settings, menu }: { settings: Settings; me
           <Checkout
             cart={cart}
             onBackToMenu={() => setView("menu")}
+            onUpdateQty={updateCartQty}
+            onRemoveLine={removeCartLine}
             onConfirmPaid={handleConfirmPaid}
             submitting={submitting}
             submitError={submitError}

@@ -67,10 +67,21 @@ export async function submitOrderToSheet(payload: OrderPayload): Promise<OrderRe
     return { success: true, orderNumber: mockOrderCounter, timestamp: new Date().toISOString() };
   }
 
-  const res = await fetch(APPS_SCRIPT_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  return res.json();
+  // Apps Script's POST redirect hop is occasionally slow. Without a bound,
+  // a slow response leaves the request hanging with no feedback until the
+  // customer retries — better to fail fast with a clear, retryable error.
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(20_000),
+    });
+    return await res.json();
+  } catch (err) {
+    if (err instanceof Error && err.name === "TimeoutError") {
+      return { success: false, error: "The order system took too long to respond. Please try again." };
+    }
+    return { success: false, error: "Couldn't reach the order system. Please try again." };
+  }
 }
