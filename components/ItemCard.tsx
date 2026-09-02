@@ -28,7 +28,7 @@ export default function ItemCard({
             <span className="rounded bg-stone-200 px-1.5 py-0.5 text-xs text-stone-600">Sold Out</span>
           )}
         </div>
-        <p className="truncate text-sm text-stone-500">{item.description}</p>
+        <p className="line-clamp-2 text-sm text-stone-500">{item.description}</p>
         <div className="mt-1 text-sm font-medium text-stone-700">{priceRangeLabel(item)}</div>
       </div>
     </button>
