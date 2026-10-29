@@ -43,15 +43,47 @@ export async function getSettings(): Promise<Settings> {
   return parseSettings(raw);
 }
 
+/**
+ * [TCM-FIX-001-DIAG] START
+ * Diagnose menu fetch timeouts on Vercel Preview.
+ */
 export async function getMenu(): Promise<MenuItem[]> {
   if (!APPS_SCRIPT_URL) {
-    console.warn("[appsScript] APPS_SCRIPT_URL not set — using mock menu. See README.md.");
+    console.warn("[appsScript] APPS_SCRIPT_URL missing");
     return mockMenu;
   }
-  const res = await fetch(`${APPS_SCRIPT_URL}?action=menu`, { cache: "no-store" });
-  return res.json();
-}
 
+  const started = Date.now();
+
+  try {
+    console.log("[TCM-DIAG] Starting menu fetch");
+
+    const res = await fetch(
+      `${APPS_SCRIPT_URL}?action=menu`,
+      {
+        cache: "no-store",
+        signal: AbortSignal.timeout(10000),
+      }
+    );
+
+    console.log(
+      `[TCM-DIAG] Menu response: ${res.status}, ${Date.now() - started}ms`
+    );
+
+    if (!res.ok) {
+      throw new Error(`Menu request failed: ${res.status}`);
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error(
+      `[TCM-DIAG] Menu fetch failed after ${Date.now() - started}ms`,
+      error
+    );
+    throw error;
+  }
+}
+// [TCM-FIX-001-DIAG] END
 let mockOrderCounter = 0;
 let mockOrderCounterDate = "";
 
