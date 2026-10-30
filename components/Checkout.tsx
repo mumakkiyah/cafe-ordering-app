@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from "react";
+// [TCM-FIX-001] Added useEffect to synchronize availability warnings with cart.
+import { useEffect, useState } from "react";
 import type { CartLine } from "@/types";
 import { formatMoney } from "@/lib/pricing";
+// [TCM-FIX-001] START: Import live availability check
+import { checkCartAvailability } from "@/app/actions";
+// [TCM-FIX-001] END
 
 type Customer = { name: string; phone: string };
 
@@ -26,10 +30,68 @@ export default function Checkout({
   const [step, setStep] = useState<"details" | "pay">("details");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+    // [TCM-FIX-001] START: Availability validation state
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
+  const [unavailableItems, setUnavailableItems] = useState<string[]>([]);
+  const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+    // [TCM-FIX-001] START: Clear warnings for removed cart items
+  useEffect(() => {
+    const currentItemNames = new Set(cart.map((line) => line.name));
 
+    setUnavailableItems((previous) => {
+      const remaining = previous.filter((name) =>
+        currentItemNames.has(name)
+      );
+
+      return remaining.length === previous.length
+        ? previous
+        : remaining;
+    });
+  }, [cart]);
+  // [TCM-FIX-001] END
+  // [TCM-FIX-001] END
+  
   const subtotal = cart.reduce((sum, line) => sum + line.lineTotal, 0);
   const phoneValid = /^[0-9]{7,15}$/.test(phone.trim());
   const detailsValid = name.trim().length > 0 && phoneValid;
+  
+  // [TCM-FIX-001] START: Validate cart before displaying payment QR
+  const handleContinueToPayment = async () => {
+    if (!detailsValid || checkingAvailability || !cart.length) {
+      return;
+    }
+
+    setCheckingAvailability(true);
+    setUnavailableItems([]);
+    setAvailabilityError(null);
+
+    try {
+      const result = await checkCartAvailability(
+        cart.map((line) => line.name)
+      );
+
+      if (!result.success) {
+        setAvailabilityError(
+          result.error ?? "Couldn't check availability."
+        );
+        return;
+      }
+
+      if (result.unavailable.length > 0) {
+        setUnavailableItems(result.unavailable);
+        return;
+      }
+
+      setStep("pay");
+    } catch {
+      setAvailabilityError(
+        "Couldn't check availability. Please try again."
+      );
+    } finally {
+      setCheckingAvailability(false);
+    }
+  };
+  // [TCM-FIX-001] END
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
@@ -132,16 +194,56 @@ export default function Checkout({
               placeholder="9XXXXXXX"
             />
           </div>
+          {/* [TCM-FIX-001] START: Sold-out items alert */}
+          {unavailableItems.length > 0 && (
+            <div
+              role="alert"
+              className="rounded-lg bg-red-50 p-4 text-sm text-red-800"
+            >
+              <p className="font-semibold">
+                Some items are no longer available
+              </p>
+              <p className="mt-1">
+                Please remove the following items from your cart:
+              </p>
+              <ul className="mt-2 list-disc pl-5">
+                {unavailableItems.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {availabilityError && (
+            <p
+              role="alert"
+              className="rounded-lg bg-red-50 p-4 text-sm text-red-800"
+            >
+              {availabilityError}
+            </p>
+          )}
+          {/* [TCM-FIX-001] END */}
+
+          {/* [TCM-FIX-001] UPDATED: Validate stock before payment */}
           <button
             type="button"
-            disabled={!detailsValid}
-            onClick={() => setStep("pay")}
+            // [TCM-FIX-001] Disable payment when known sold-out items remain in cart.
+            disabled={
+              !detailsValid ||
+              !cart.length ||
+              checkingAvailability ||
+              unavailableItems.length > 0
+            }
+            onClick={handleContinueToPayment}
             className="w-full rounded-full bg-[#9c6f43] px-6 py-3 font-medium text-white hover:bg-[#855e39] disabled:opacity-40"
           >
-            Continue to Payment
+            {checkingAvailability
+              ? "Checking availability..."
+              : "Continue to Payment"}
           </button>
         </div>
       )}
+      
 
       {step === "pay" && (
         <div className="mt-6 text-center">

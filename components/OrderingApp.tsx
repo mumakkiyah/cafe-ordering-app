@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+// [TCM-FIX-001] START: Router for menu refresh
+import { useRouter } from "next/navigation";
+// [TCM-FIX-001] END
 import type { CartLine, MenuItem, OrderResult, Settings } from "@/types";
 import { isOpenNow } from "@/lib/openStatus";
 import { submitOrder } from "@/app/actions";
@@ -32,6 +35,8 @@ function mergeIntoCart(cart: CartLine[], line: Omit<CartLine, "id">): CartLine[]
 }
 
 export default function OrderingApp({ settings, menu }: { settings: Settings; menu: MenuItem[] }) {
+    // [TCM-FIX-001] Router used to refresh server-provided menu data.
+  const router = useRouter();
   const [view, setView] = useState<View>("menu");
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [cart, setCart] = useState<CartLine[]>([]);
@@ -45,6 +50,39 @@ export default function OrderingApp({ settings, menu }: { settings: Settings; me
     const interval = setInterval(() => setIsOpen(isOpenNow(settings)), 60_000);
     return () => clearInterval(interval);
   }, [settings]);
+  
+  // [TCM-FIX-001] START: Refresh menu when browser tab is restored
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        router.refresh();
+        setIsOpen(isOpenNow(settings));
+      }
+    };
+
+    const handlePageShow = (event: PageTransitionEvent) => {
+      // A restored page may contain previously loaded menu data.
+      if (event.persisted) {
+        router.refresh();
+        setIsOpen(isOpenNow(settings));
+      }
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+    window.addEventListener("pageshow", handlePageShow);
+
+    return () => {
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, [router, settings]);
+  // [TCM-FIX-001] END
 
   const selectItem = (item: MenuItem) => {
     setSelectedItem(item);
