@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+// [TCM-FIX-001] Added useEffect to synchronize availability warnings with cart.
+import { useEffect, useState } from "react";
 import type { CartLine } from "@/types";
 import { formatMoney } from "@/lib/pricing";
 // [TCM-FIX-001] START: Import live availability check
@@ -33,6 +34,21 @@ export default function Checkout({
   const [checkingAvailability, setCheckingAvailability] = useState(false);
   const [unavailableItems, setUnavailableItems] = useState<string[]>([]);
   const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+    // [TCM-FIX-001] START: Clear warnings for removed cart items
+  useEffect(() => {
+    const currentItemNames = new Set(cart.map((line) => line.name));
+
+    setUnavailableItems((previous) => {
+      const remaining = previous.filter((name) =>
+        currentItemNames.has(name)
+      );
+
+      return remaining.length === previous.length
+        ? previous
+        : remaining;
+    });
+  }, [cart]);
+  // [TCM-FIX-001] END
   // [TCM-FIX-001] END
   
   const subtotal = cart.reduce((sum, line) => sum + line.lineTotal, 0);
@@ -211,7 +227,13 @@ export default function Checkout({
           {/* [TCM-FIX-001] UPDATED: Validate stock before payment */}
           <button
             type="button"
-            disabled={!detailsValid || !cart.length || checkingAvailability}
+            // [TCM-FIX-001] Disable payment when known sold-out items remain in cart.
+            disabled={
+              !detailsValid ||
+              !cart.length ||
+              checkingAvailability ||
+              unavailableItems.length > 0
+            }
             onClick={handleContinueToPayment}
             className="w-full rounded-full bg-[#9c6f43] px-6 py-3 font-medium text-white hover:bg-[#855e39] disabled:opacity-40"
           >
